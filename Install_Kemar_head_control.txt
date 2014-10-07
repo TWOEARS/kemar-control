@@ -1,0 +1,39 @@
+Install CAN Peak-system board driver (expresscard to can)
+
+download at http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-7.12.tar.gz
+> tar -zxvf peak-linux-driver-7.12.tar.gz
+> cd peakpeak-linux-driver-7.12
+> make clean
+> make
+    (Missing popt.h 
+    > sudo apt-get install libpopt-dev
+    and do again:
+    > make clean
+    > make)
+> sudo make install
+
+This command need to be called once, everytime the computer is started.
+> sudo /sbin/modeprobe pcan
+
+This command need to be called once, then we can use the card to communicate.
+> sudo ifconfig can0 up
+Did not work... Rebooted my computer with the express card plugged in and it
+worked.
+
+If you want to close the connection
+> sudo ifconfig can0 down
+
+
+
+
+Installing the library:
+> git clone git://git.openrobots.org/robots/elmo-axis-libs.git
+> cd elmo-axis-libs
+> git checkout --track origin/kemar-head
+> mkdir m4
+> autoreconf -vif
+> mkdir build
+> cd build
+> ../configure --prefix=$INSTALL_DIR
+> make
+> sudo make install

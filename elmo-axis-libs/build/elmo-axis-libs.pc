@@ -1,0 +1,11 @@
+prefix=/home/ariel/openrobots
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: elmo-axis-libs
+Description: Elmo axis interface library
+Version: 0.1
+Libs: -L${libdir} -lelmo-axis -lrt -lm -lpthread
+Cflags: -I${includedir}
+

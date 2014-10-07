@@ -1,0 +1,8 @@
+module kemar {
+
+  struct state
+    {
+    double position;  /* current position (deg) */
+    double speed;     /* current speed (deg/s) */
+    };
+};
