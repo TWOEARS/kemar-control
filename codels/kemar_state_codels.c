@@ -80,6 +80,8 @@ sSend(const kemar_currentState *currentState, genom_context self)
             flagC = 0;
             currentState->data(self)->position = k->posGearRad[0]*(360/pi);
             currentState->data(self)->speed = k->velGearRadS*(360/pi);
+            currentState->data(self)->maxLeft = h->driveParam.leftRadMax*(360/pi);
+            currentState->data(self)->maxRight = h->driveParam.rightRadMax*(360/pi);
             currentState->write(self); 
             return kemar_sendS;
         }      
@@ -88,6 +90,8 @@ sSend(const kemar_currentState *currentState, genom_context self)
     {
         currentState->data(self)->position = 0;
         currentState->data(self)->speed = 0;
+        currentState->data(self)->maxLeft = 0;
+        currentState->data(self)->maxRight = 0;
         currentState->write(self); 
         return kemar_sendS;
     }

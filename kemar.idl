@@ -4,5 +4,7 @@ module kemar {
     {
     double position;  /* current position (deg) */
     double speed;     /* current speed (deg/s) */
+    double maxLeft;
+    double maxRight;
     };
 };
