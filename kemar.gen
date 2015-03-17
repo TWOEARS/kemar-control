@@ -37,6 +37,10 @@ component kemar {
 
     port out kemar::state currentState;
 	port out kemar::position_indexes_movement Indexes;
+    
+    ids{
+        double headSpeed;
+    };
 
     task motion {
         codel <start>   motionStart(port out Indexes) yield ether;
@@ -58,7 +62,7 @@ component kemar {
         task motion;
 
         codel <start>           hStart() yield sendH;
-        codel <sendH>           hSend() yield recvH, ether;
+        codel <sendH>           hSend(inout ::ids) yield recvH, ether;
         async codel <recvH>     hWaitForData() yield sendH, recvH, ether;
     };
 
@@ -75,14 +79,14 @@ component kemar {
     activity SetVelocity(in double velocity) {
         task motion;
 
-        codel <start>           svStart(in velocity) yield ether;
+        codel <start>           svStart(in velocity, inout ::ids) yield ether;
     };
 
     /*Move Absolute Position: calls kemarSetGearVelRadS, kemarSetGearPosAbsRad, kemarWaitMsgValid*/
     activity MoveAbsolutePosition(in double target) {
         task motion;
 
-        codel <start>           mapStart() yield sendMAP;
+        codel <start>           mapStart(inout ::ids) yield sendMAP;
         codel <sendMAP>         mapSend(in target, port out Indexes) yield recvMAP, ether; 
         async codel <recvMAP>   mapWaitForData() yield sendMAP, recvMAP;
     };
@@ -91,7 +95,7 @@ component kemar {
     activity MoveRelativePosition(in double target) {
         task motion;
 
-        codel <start>           mrpStart() yield sendMRP;
+        codel <start>           mrpStart(inout ::ids) yield sendMRP;
         codel <sendMRP>         mrpSend(in target) yield recvMRP, ether;
         async codel <recvMRP>   mrpWaitForData() yield sendMRP, recvMRP;
     };

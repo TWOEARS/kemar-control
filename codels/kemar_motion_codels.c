@@ -110,7 +110,7 @@ hStart(genom_context self)
  * Yields to kemar_recvH, kemar_ether.
  */
 genom_event
-hSend(genom_context self)
+hSend(kemar_ids *ids, genom_context self)
 {
     if(flagH==0)
     {
@@ -133,7 +133,8 @@ hSend(genom_context self)
         	k = kemarStructInit(h);
             /*Sets Velocity to a 'default' value = 100deg/sec*/
             //kemarSetGearVelRadS(h, k, (100*(pi/180)), MOTIONTYPE_POSCTRL);
-            kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
+            ids->headSpeed=100;
+            kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
             printf("Sets velocity to default value of 100deg/sec\n");
             return kemar_ether;
         }        
@@ -370,11 +371,11 @@ scpStart(genom_context self)
  * Yields to kemar_ether.
  */
 genom_event
-svStart(double velocity, genom_context self)
+svStart(double velocity, kemar_ids *ids, genom_context self)
 {
     //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
-    headVelocity = velocity;
-    kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
+    ids->headSpeed = velocity;
+    kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_ether;
 }
 
@@ -387,13 +388,13 @@ svStart(double velocity, genom_context self)
  * Yields to kemar_sendMAP.
  */
 genom_event
-mapStart(genom_context self)
+mapStart(kemar_ids *ids, genom_context self)
 {
     flagMAP=0;
     stepMAP=0;
     waitMAP=0;
 
-kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
+kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_sendMAP;
 }
 
@@ -517,10 +518,10 @@ mapWaitForData(genom_context self)
  * Yields to kemar_sendMRP.
  */
 genom_event
-mrpStart(genom_context self)
+mrpStart(kemar_ids *ids, genom_context self)
 {
     flagMRP=0;
-kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
+kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_sendMRP;
 }
 
