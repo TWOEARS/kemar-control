@@ -71,13 +71,6 @@ component kemar {
         async codel <recvCP>    cpWaitForData() yield sendCP, recvCP;
     };
 
-    /*Stop Current position*/
-    activity StopCurrentPosition() {
-        task motion;
-
-        codel <start>           scpStart() yield ether;
-    };
-
     /*Set Velocity: calls kemarSetGearVelRadS*/
     activity SetVelocity(in double velocity) {
         task motion;

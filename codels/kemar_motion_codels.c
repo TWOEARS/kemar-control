@@ -531,7 +531,7 @@ mrpSend(double target, genom_context self)
         {
             //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
             globalTarget = (k->posGearRad[0]*(180/pi)) + target;
-            printf("[DEBUG] globalTarget: %2.3f\n", globalTarget);
+            //printf("[DEBUG] globalTarget: %2.3f\n", globalTarget);
 	        kemarSetGearPosRelRad(h, k, (target*(pi/180)));
             return kemar_recvMRP;
         }
