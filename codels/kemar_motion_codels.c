@@ -33,6 +33,7 @@
 
 #include "includes.h"
 
+double headVelocity=100;    //TODO: This should be in the IDS.
 /* --- Task motion ------------------------------------------------------ */
 
 
@@ -131,7 +132,8 @@ hSend(genom_context self)
         	/* init kemar head struct using homing init */
         	k = kemarStructInit(h);
             /*Sets Velocity to a 'default' value = 100deg/sec*/
-            kemarSetGearVelRadS(h, k, (100*(pi/180)), MOTIONTYPE_POSCTRL);
+            //kemarSetGearVelRadS(h, k, (100*(pi/180)), MOTIONTYPE_POSCTRL);
+            kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
             printf("Sets velocity to default value of 100deg/sec\n");
             return kemar_ether;
         }        
@@ -350,14 +352,14 @@ cpWaitForData(genom_context self)
  *
  * Triggered by kemar_start.
  * Yields to kemar_ether.
- */
+ *
 genom_event
 scpStart(genom_context self)
 {
     showCP=1;
 
     return kemar_ether;
-}
+}*/
 
 
 /* --- Activity SetVelocity --------------------------------------------- */
@@ -370,7 +372,9 @@ scpStart(genom_context self)
 genom_event
 svStart(double velocity, genom_context self)
 {
-    kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
+    //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
+    headVelocity = velocity;
+    kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_ether;
 }
 
@@ -388,6 +392,8 @@ mapStart(genom_context self)
     flagMAP=0;
     stepMAP=0;
     waitMAP=0;
+
+kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_sendMAP;
 }
 
@@ -514,6 +520,7 @@ genom_event
 mrpStart(genom_context self)
 {
     flagMRP=0;
+kemarSetGearVelRadS(h, k, (headVelocity*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_sendMRP;
 }
 

@@ -46,6 +46,9 @@ CAN_DRIVE_PARAMS *p;
 
 struct timeval tv;
 
+// Default velocity.
+//double headVelocity=100;
+
 double globalTarget;
 /*Flags for Homing Function*/
 int flagH, stepH, firstHoming;
