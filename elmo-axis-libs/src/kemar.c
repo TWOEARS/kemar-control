@@ -33,7 +33,7 @@
 
 #include "timeutils.h"
 
-#define CAN_BUS_DEBUG 1
+//#define CAN_BUS_DEBUG 1
 
 /*
  * For this motor, the position and speed are in m and m/s respectively
@@ -127,6 +127,7 @@ kemarHomingRegConfig(CAN_HARMONICA_STR *h, HOMING_STATE homingState)
 			p->leftRadMax = -targetPos;
 			intprtSetInt(h, 8, 'M', 'O', 0, MO_MOTOR_ENABLE);
 			intprtSetInt(h, 8, 'P', 'A', 0, driveParamPosGearRadToPosMotIncr(p, targetPos));
+			intprtSetInt(h, 4, 'B', 'G', 0, 0);
 			intprtSetInt(h, 4, 'B', 'G', 0, 0);
 			msgHeader = MSG_PX_TARGET;
 			break;
@@ -275,6 +276,7 @@ kemarWaitMsgValid(CAN_HARMONICA_STR *h, MSG_HEADER msgHeader, double targetPos)
 			break;
 
 		case MSG_PX :
+            intprtSetInt(h, 4, 'P', 'X', 0, 0);
 			h->RxValidEvt.msgPXValid = 0;
 			while(((h->RxValidEvt.msgPXValid) != 1) && (diffTime < DIFF_VALID_MSG_S)) {
 				!socketcanReceiveMsgWait(h->dev, &msg, MSG_REQ_DELAY_MS) ? harmonicaDecode(h, &msg) : intprtSetInt(h, 4, 'P', 'X', 0, 0);
@@ -284,7 +286,8 @@ kemarWaitMsgValid(CAN_HARMONICA_STR *h, MSG_HEADER msgHeader, double targetPos)
 			ret = ((h->RxValidEvt.msgPXValid) == 1) ? 0 : -1;
 			break;
 
-		case MSG_PX_TARGET :			
+		case MSG_PX_TARGET :		
+            intprtSetInt(h, 4, 'P', 'X', 0, 0);	
 			while((diffPos > DIFF_VALID_POS_INCR) && (diffTime < DIFF_VALID_MVT_S)) {
 				!socketcanReceiveMsgWait(h->dev, &msg, MSG_REQ_DELAY_MS) ? harmonicaDecode(h, &msg) : intprtSetInt(h, 4, 'P', 'X', 0, 0);
   				clock_gettime(CLOCK_REALTIME, &reply);
@@ -295,6 +298,7 @@ kemarWaitMsgValid(CAN_HARMONICA_STR *h, MSG_HEADER msgHeader, double targetPos)
 			break;
 
 		case MSG_SR :
+            intprtSetInt(h, 4, 'S', 'R', 0, 0);
 			h->RxValidEvt.msgSRValid = 0;
 			while(((h->RxValidEvt.msgSRValid) != 1) && (diffTime < DIFF_VALID_MSG_S)) {
 				!socketcanReceiveMsgWait(h->dev, &msg, MSG_REQ_DELAY_MS) ? harmonicaDecode(h, &msg) : intprtSetInt(h, 4, 'S', 'R', 0, 0);
@@ -366,6 +370,7 @@ kemarSetGearPosAbsRad(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k, double posAbsG
 	intprtSetInt(h, 8, 'S', 'P', 0, k->velTargetEncIncrPeriod);
 	intprtSetInt(h, 8, 'P', 'A', 0, k->posTargetEncIncr);
 	intprtSetInt(h, 4, 'B', 'G', 0, 0);
+	intprtSetInt(h, 4, 'B', 'G', 0, 0);
 }
 
 /*----------------------------------------------------------------------*/
@@ -389,6 +394,7 @@ kemarSetGearPosRelRad(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k, double posRelG
 	intprtSetInt(h, 8, 'S', 'P', 0, k->velTargetEncIncrPeriod);
 	intprtSetInt(h, 8, 'P', 'A', 0, k->posTargetEncIncr);
 	intprtSetInt(h, 4, 'B', 'G', 0, 0);
+	intprtSetInt(h, 4, 'B', 'G', 0, 0);
 }
 
 /*----------------------------------------------------------------------*/
@@ -407,6 +413,7 @@ kemarSetGearVelRadS(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k, double VelGearRa
 	if (kemarSetMotionType(h, motionType) == MOTIONTYPE_VELCTRL) {
 		intprtSetInt(h, 8, 'J', 'V', 0, k->velTargetEncIncrPeriod);
 		intprtSetInt(h, 8, 'M', 'O', 0, MO_MOTOR_ENABLE);
+		intprtSetInt(h, 4, 'B', 'G', 0, 0);
 		intprtSetInt(h, 4, 'B', 'G', 0, 0);
 		k->posTargetGearRad = 0.0;
 		k->posTargetEncIncr = 0;
@@ -433,6 +440,7 @@ kemarSetEncPosAbsIncr(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k, int posAbsEncI
 	intprtSetInt(h, 8, 'S', 'P', 0, k->velTargetEncIncrPeriod);
 	intprtSetInt(h, 8, 'P', 'A', 0, k->posTargetEncIncr);
 	intprtSetInt(h, 4, 'B', 'G', 0, 0);
+	intprtSetInt(h, 4, 'B', 'G', 0, 0);
 }
 
 /*----------------------------------------------------------------------*/
@@ -456,6 +464,7 @@ kemarSetEncPosRelIncr(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k, int posRelEncI
 	intprtSetInt(h, 8, 'S', 'P', 0, k->velTargetEncIncrPeriod);
 	intprtSetInt(h, 8, 'P', 'A', 0, k->posTargetEncIncr);
 	intprtSetInt(h, 4, 'B', 'G', 0, 0);
+	intprtSetInt(h, 4, 'B', 'G', 0, 0);
 }
 
 /*----------------------------------------------------------------------*/
@@ -473,6 +482,7 @@ kemarSetEncVelIncrS(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k, int velEncIncrS,
 	if (kemarSetMotionType(h, motionType) == MOTIONTYPE_VELCTRL) {
 		intprtSetInt(h, 8, 'J', 'V', 0, k->velTargetEncIncrPeriod);
 		intprtSetInt(h, 8, 'M', 'O', 0, MO_MOTOR_ENABLE);
+		intprtSetInt(h, 4, 'B', 'G', 0, 0);
 		intprtSetInt(h, 4, 'B', 'G', 0, 0);
 		k->posTargetGearRad = 0.0;
 		k->posTargetEncIncr = 0;
@@ -547,7 +557,7 @@ kemarGetInfo(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k)
 {
 	CAN_DRIVE_PARAMS *p = &h->driveParam;
 
-	kemarWaitMsgValid(h, MSG_SR, 0.0);
+	//kemarWaitMsgValid(h, MSG_SR, 0.0);
 	kemarWaitMsgValid(h, MSG_PX, 0.0);
 	k->posEncIncr[1] = k->posEncIncr[0];
 	k->posEncIncr[0] = driveParamPosGearRadToPosMotIncr(p, h->posGearMeasRad);

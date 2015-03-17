@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015, LAAS/CNRS
+/*  Copyright (c) 2014, LAAS/CNRS
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -27,28 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
  * POSSIBILITY OF SUCH DAMAGE.
  */
-module kemar {
+#include "ackemar.h"
 
-    struct timestamp
-    {
-        unsigned long sec;
-        unsigned long usec;
-    };
-
-    struct state
-    {
-        double position;  /* current position (deg) */
-        double speed;     /* current speed (deg/s) */
-        timestamp time;
-        double maxLeft;
-        double maxRight;
-    };
-
-    struct position_indexes_movement
-    {
-        timestamp startTimeStamp;
-        timestamp stopTimeStamp;
-        double startPosition;
-        double stopPosition;
-    };
-};
+#include "kemar_c_types.h"

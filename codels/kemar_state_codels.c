@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2014, LAAS/CNRS
+/*  Copyright (c) 2015, LAAS/CNRS
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -58,30 +57,34 @@ stateStart(genom_context self)
 genom_event
 sSend(const kemar_currentState *currentState, genom_context self)
 {
+
     if(h->homePos == true)
     {
         if(k->velGearRadS > 0)
         {
-            if(k->posGearRad[0]*(360/pi) > (h->driveParam.leftRadMax*(360/pi)-1))
+            if(k->posGearRad[0]*(180/pi) > (h->driveParam.leftRadMax*(180/pi)-2))
                 kemarSetGearVelRadS(h, k, 0, MOTIONTYPE_VELCTRL);
         }
         else
         {
             if(k->velGearRadS < 0)
             {
-                if(k->posGearRad[0]*(360/pi) < (h->driveParam.rightRadMax*(360/pi)+1))
+                if(k->posGearRad[0]*(180/pi) < (h->driveParam.rightRadMax*(180/pi)+2))
                     kemarSetGearVelRadS(h, k, 0, MOTIONTYPE_VELCTRL);
             }
         }
         if(flagC==0)
-            return kemar_recvS;
+            return kemar_sendS;
         else
         {
             flagC = 0;
-            currentState->data(self)->position = k->posGearRad[0]*(360/pi);
-            currentState->data(self)->speed = k->velGearRadS*(360/pi);
-            currentState->data(self)->maxLeft = h->driveParam.leftRadMax*(360/pi);
-            currentState->data(self)->maxRight = h->driveParam.rightRadMax*(360/pi);
+            currentState->data(self)->position = k->posGearRad[0]*(180/pi);
+            currentState->data(self)->speed = k->velGearRadS*(180/pi);
+            currentState->data(self)->maxLeft = h->driveParam.leftRadMax*(180/pi);
+            currentState->data(self)->maxRight = h->driveParam.rightRadMax*(180/pi);
+			gettimeofday(&tv, NULL);
+			currentState->data(self)->time.sec = tv.tv_sec;
+			currentState->data(self)->time.usec = tv.tv_usec;
             currentState->write(self); 
             return kemar_sendS;
         }      
@@ -92,6 +95,8 @@ sSend(const kemar_currentState *currentState, genom_context self)
         currentState->data(self)->speed = 0;
         currentState->data(self)->maxLeft = 0;
         currentState->data(self)->maxRight = 0;
+		currentState->data(self)->time.sec = 0;
+		currentState->data(self)->time.usec = 0;
         currentState->write(self); 
         return kemar_sendS;
     }
@@ -106,7 +111,7 @@ sSend(const kemar_currentState *currentState, genom_context self)
 genom_event
 sWaitForData(genom_context self)
 {
-    kemarGetInfo(h, k);
+//    kemarGetInfo(h, k);
     flagC=1;
 
     return kemar_sendS;

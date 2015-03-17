@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2014, LAAS/CNRS
+/*  Copyright (c) 2015, LAAS/CNRS
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -33,6 +32,7 @@
 #include "kemar_c_types.h"
 
 #include "includes.h"
+
 /* --- Task motion ------------------------------------------------------ */
 
 
@@ -42,11 +42,20 @@
  * Yields to kemar_ether.
  */
 genom_event
-motionStart(genom_context self)
+motionStart(const kemar_Indexes *Indexes, genom_context self)
 {
     /* init kemar head */
     h = kemarInit(MOTIONTYPE_POSCTRL);
     p = &h->driveParam;
+    firstHoming = 0;
+
+    Indexes->data(self)->startPosition = 0;
+    Indexes->data(self)->startTimeStamp.sec = 0;
+    Indexes->data(self)->startTimeStamp.usec = 0;
+    Indexes->data(self)->stopPosition = 0;
+    Indexes->data(self)->stopTimeStamp.sec = 0;
+    Indexes->data(self)->stopTimeStamp.usec = 0;
+    Indexes->write(self);
 
     return kemar_ether;
 }
@@ -82,6 +91,15 @@ hStart(genom_context self)
     flagH=0;
     stepH=0;
 
+    if(firstHoming==1)
+    {
+        kemarStructEnd(k);	
+        harmonicaEnd(h);
+        socketcanEnd(h->dev);
+        /* init kemar head */
+        h = kemarInit(MOTIONTYPE_POSCTRL);
+        p = &h->driveParam;
+    }
     return kemar_sendH;
 }
 
@@ -112,6 +130,9 @@ hSend(genom_context self)
             printf("init kemar head struct using homing init\n");
         	/* init kemar head struct using homing init */
         	k = kemarStructInit(h);
+            /*Sets Velocity to a 'default' value = 100deg/sec*/
+            kemarSetGearVelRadS(h, k, (100*(pi/180)), MOTIONTYPE_POSCTRL);
+            printf("Sets velocity to default value of 100deg/sec\n");
             return kemar_ether;
         }        
     }
@@ -225,6 +246,8 @@ hWaitForData(genom_context self)
             printf("homing done\n");
 	        /* homing done */
 	        h->homePos = true;
+            if(firstHoming==0)
+                firstHoming = 1;
             flagH=1;
             return kemar_sendH;
     }
@@ -265,24 +288,36 @@ cpSend(const kemar_currentState *currentState, genom_context self)
             else
             {
                 flagCP=0;
-	            printf("------------------------------------------------------\n");
+/*	            printf("------------------------------------------------------\n");
                 h->motionType ? printf("motionType: Control in Position\n") : printf("motionType: Control in Speed\n");
                 
-                printf("Max Left : %3.8f - Max Right : %3.8f\n", h->driveParam.leftRadMax*(360/pi), h->driveParam.rightRadMax*(360/pi));
+                printf("Max Left : %3.8f - Max Right : %3.8f\n", h->driveParam.leftRadMax*(180/pi), h->driveParam.rightRadMax*(180/pi));
 
 	            if(h->motionType == MOTIONTYPE_POSCTRL)
                 {
-		            printf("Target Position:  %3.8f\n", k->posTargetGearRad*(360/pi));
-		            printf("Current Position: %3.8f\n", k->posGearRad[0]*(360/pi));
-                    printf("Current Velocity: %3.8f\n", k->velGearRadS*(360/pi));
+		            printf("Target Position:  %3.8f\n", k->posTargetGearRad*(180/pi));
+		            printf("Current Position: %3.8f\n", k->posGearRad[0]*(180/pi));
+                    printf("Current Velocity: %3.8f\n", k->velGearRadS*(180/pi));
 	            } 
                 else
                 {
-		            printf("Current Position: %3.8f\n", k->posGearRad[0]*(360/pi));
-                    printf("Current Velocity: %3.8f\n", k->velGearRadS*(360/pi));
+		            printf("Current Position: %3.8f\n", k->posGearRad[0]*(180/pi));
+                    printf("Current Velocity: %3.8f\n", k->velGearRadS*(180/pi));
 	            }
-            	printf("------------------------------------------------------\n");
-                showCP=1;   /*Only shows current State ONCE*/              
+            	printf("------------------------------------------------------\n");*/
+                showCP=1;   /*Only shows current State ONCE*/     
+                currentState->data(self)->position = k->posGearRad[0]*(180/pi);
+                //printf("[DEBUG currentState]: position: %2.2f\n", k->posGearRad[0]*(180/pi));
+                currentState->data(self)->speed = k->velGearRadS*(180/pi);
+                currentState->data(self)->maxLeft = h->driveParam.leftRadMax*(180/pi);
+                //printf("[DEBUG currentState]: maxLeft: %2.2f\n", h->driveParam.leftRadMax*(180/pi));
+                currentState->data(self)->maxRight = h->driveParam.rightRadMax*(180/pi);
+                //printf("[DEBUG currentState]: maxRight: %2.2f\n", h->driveParam.rightRadMax*(180/pi));
+				gettimeofday(&tv, NULL);
+				currentState->data(self)->time.sec = tv.tv_sec;
+				currentState->data(self)->time.usec = tv.tv_usec;     
+                //printf("[DEBUG time]: time: %d.%d\n", tv.tv_sec, tv.tv_usec);
+                currentState->write(self);                   
                 return kemar_sendCP;
             }
         }
@@ -325,6 +360,21 @@ scpStart(genom_context self)
 }
 
 
+/* --- Activity SetVelocity --------------------------------------------- */
+
+/** Codel svStart of activity SetVelocity.
+ *
+ * Triggered by kemar_start.
+ * Yields to kemar_ether.
+ */
+genom_event
+svStart(double velocity, genom_context self)
+{
+    kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
+    return kemar_ether;
+}
+
+
 /* --- Activity MoveAbsolutePosition ------------------------------------ */
 
 /** Codel mapStart of activity MoveAbsolutePosition.
@@ -336,7 +386,8 @@ genom_event
 mapStart(genom_context self)
 {
     flagMAP=0;
-
+    stepMAP=0;
+    waitMAP=0;
     return kemar_sendMAP;
 }
 
@@ -346,21 +397,55 @@ mapStart(genom_context self)
  * Yields to kemar_recvMAP, kemar_ether.
  */
 genom_event
-mapSend(double target, double velocity, genom_context self)
+mapSend(double target, const kemar_Indexes *Indexes,
+        genom_context self)
 {
     if(h->homePos == true)
     {
         if(flagMAP==0)
         {
-            kemarSetGearVelRadS(h, k, (velocity*(pi/360)), MOTIONTYPE_POSCTRL);
-	        kemarSetGearPosAbsRad(h, k, (target*(pi/360)));
-            globalTarget = target;
+            /*Get the current position to post in the port*/
+            printf("[DEBUG 1] Ask for the current position\n");
             return kemar_recvMAP;
         }
         else
         {
-            flagMAP=0;
-            return kemar_ether;
+            printf("[DEBUG] stepMAP: %d\n", stepMAP);
+            if(stepMAP==1)
+            {
+                /*Post the current (start) position in the port*/
+				gettimeofday(&tv, NULL);
+				Indexes->data(self)->startTimeStamp.sec = tv.tv_sec;
+				Indexes->data(self)->startTimeStamp.usec = tv.tv_usec;
+                printf("[DEBUG 2] Current position: %3.8f\n", k->posGearRad[0]*(180/pi));
+                Indexes->data(self)->startPosition = k->posGearRad[0]*(180/pi);
+
+                /*Move the head*/
+                //printf("[DEBUG] Call kemarSetGearVelRadS\n");
+                //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
+                //printf("[DEBUG] Returns kemarSetGearVelRadS\n");
+                printf("[DEBUG 3] Call kemarSetGearPosAbsRad\n");
+                kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
+                printf("[DEBUG 4] Return kemarSetGearPosAbsRad\n");
+                Indexes->data(self)->stopPosition = target;
+                printf("[DEBUG 5] Saves Indexes->data(self)->stopPosition = target\n");
+                globalTarget = target;
+                stepMAP++;
+                printf("[DEBUG 6] Increments stepMAP: %d\n", stepMAP);
+                return kemar_recvMAP;
+            }
+            else
+            {
+                flagMAP=0;
+                stepMAP = 0;
+                /*Post the current (stop) position in the port*/
+				gettimeofday(&tv, NULL);
+				Indexes->data(self)->stopTimeStamp.sec = tv.tv_sec;
+				Indexes->data(self)->stopTimeStamp.usec = tv.tv_usec;
+                Indexes->write(self);
+                printf("[DEBUG 7]: Saves Stop Index and returns ether\n");
+                return kemar_ether;
+            }
         }
     }
     else
@@ -378,15 +463,49 @@ mapSend(double target, double velocity, genom_context self)
 genom_event
 mapWaitForData(genom_context self)
 {
-    kemarWaitMsgValid(h, MSG_PX_TARGET, (globalTarget*(pi/360)));
-    flagMAP=1;
+    if(stepMAP==0)
+    {
+        kemarGetInfo(h, k);
+        stepMAP++;
+        flagMAP=1;
+        return kemar_sendMAP;
+    }
+    else
+    {
+        //printf("[DEBUG] kemarWaitMsgValid\n");
+        //kemarWaitMsgValid(h, MSG_PX, (globalTarget*(pi/180)));
+        //kemarGetInfo(h, k);
+        kemarGetInfo(h, k);
+        if(k->posGearRad[0]*(180/pi)>=0)
+        {
+            if((k->posGearRad[0]*(180/pi))<globalTarget-0.5)
+            {
+                return kemar_recvMAP;
+            }
+            if((k->posGearRad[0]*(180/pi))>globalTarget+0.5)
+            {
+                return kemar_recvMAP;
+            }
+        }
+        else
+        {
+            if((k->posGearRad[0]*(180/pi))>globalTarget+0.5)
+            {
+                return kemar_recvMAP;
+            }
+            if((k->posGearRad[0]*(180/pi))<globalTarget-0.5)
+            {
+                return kemar_recvMAP;
+            }
+        }
+    }
     return kemar_sendMAP;
 }
 
 
-/* --- Activity MoveRealtivePosition ------------------------------------ */
+/* --- Activity MoveRelativePosition ------------------------------------ */
 
-/** Codel mrpStart of activity MoveRealtivePosition.
+/** Codel mrpStart of activity MoveRelativePosition.
  *
  * Triggered by kemar_start.
  * Yields to kemar_sendMRP.
@@ -398,21 +517,22 @@ mrpStart(genom_context self)
     return kemar_sendMRP;
 }
 
-/** Codel mrpSend of activity MoveRealtivePosition.
+/** Codel mrpSend of activity MoveRelativePosition.
  *
  * Triggered by kemar_sendMRP.
  * Yields to kemar_recvMRP, kemar_ether.
  */
 genom_event
-mrpSend(double target, double velocity, genom_context self)
+mrpSend(double target, genom_context self)
 {
     if(h->homePos == true)
     {
         if(flagMRP==0)
         {
-            kemarSetGearVelRadS(h, k, (velocity*(pi/360)), MOTIONTYPE_POSCTRL);
-	        kemarSetGearPosRelRad(h, k, (target*(pi/360)));
-            globalTarget = target;
+            //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
+            globalTarget = (k->posGearRad[0]*(180/pi)) + target;
+            printf("[DEBUG] globalTarget: %2.3f\n", globalTarget);
+	        kemarSetGearPosRelRad(h, k, (target*(pi/180)));
             return kemar_recvMRP;
         }
         else
@@ -428,7 +548,7 @@ mrpSend(double target, double velocity, genom_context self)
     }
 }
 
-/** Codel mrpWaitForData of activity MoveRealtivePosition.
+/** Codel mrpWaitForData of activity MoveRelativePosition.
  *
  * Triggered by kemar_recvMRP.
  * Yields to kemar_sendMRP, kemar_recvMRP.
@@ -436,7 +556,30 @@ mrpSend(double target, double velocity, genom_context self)
 genom_event
 mrpWaitForData(genom_context self)
 {
-    kemarWaitMsgValid(h, MSG_PX_TARGET, (globalTarget*(pi/360)));
+    //kemarWaitMsgValid(h, MSG_PX_TARGET, (globalTarget*(pi/180)));
+    kemarGetInfo(h, k);
+    if(k->posGearRad[0]*(180/pi)>=0)
+    {
+        if((k->posGearRad[0]*(180/pi))<globalTarget-0.5)
+        {
+            return kemar_recvMRP;
+        }
+        if((k->posGearRad[0]*(180/pi))>globalTarget+0.5)
+        {
+            return kemar_recvMRP;
+        }
+    }
+    else
+    {
+        if((k->posGearRad[0]*(180/pi))>globalTarget+0.5)
+        {
+            return kemar_recvMRP;
+        }
+        if((k->posGearRad[0]*(180/pi))<globalTarget-0.5)
+        {
+            return kemar_recvMRP;
+        }
+    }
     flagMRP=1;
     return kemar_sendMRP;
 }
@@ -453,7 +596,6 @@ genom_event
 cisStart(genom_context self)
 {
     flagCIS=0;
-
     return kemar_sendCIS;
 }
 
