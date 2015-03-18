@@ -37,6 +37,8 @@ component kemar {
 
     port out kemar::state currentState;
 	port out kemar::position_indexes_movement Indexes;
+
+    typedef kemar::state head;
     
     ids{
         double headSpeed;
@@ -72,13 +74,13 @@ component kemar {
     };
 
     /*Current Position: calls kemarGetInfo*/
-    activity CurrentPosition() {
+    /*activity CurrentPosition() {
         task motion;
 
         codel <start>           cpStart() yield sendCP;
         codel <sendCP>          cpSend(port out currentState) yield recvCP, sendCP, ether;
         async codel <recvCP>    cpWaitForData() yield sendCP, recvCP;
-    };
+    };*/
 
     /*Set Velocity: calls kemarSetGearVelRadS*/
     activity SetVelocity(in double velocity) {
@@ -113,5 +115,9 @@ component kemar {
         codel <sendCIS>         cisSend(in velocity) yield recvCIS, ether;
         async codel<recvCIS>    cisWaitForData() yield sendCIS, recvCIS;
         
+    };
+
+    function GetPosition(out head Head){
+        codel getPosition(out Head);
     };
 };
