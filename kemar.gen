@@ -40,6 +40,11 @@ component kemar {
     
     ids{
         double headSpeed;
+
+        double kPosition;
+        double kVelocity;
+        double kLeftMax;
+        double kRightMax;
     };
 
     task motion {
@@ -53,8 +58,8 @@ component kemar {
         stack                   4000;
 
         codel <start>           stateStart() yield sendS;
-        codel <sendS>           sSend(port out currentState) yield recvS, sendS;
-        async codel <recvS>     sWaitForData() yield sendS, recvS;
+        async codel <sendS>           sSend(port out currentState, inout ::ids) yield recvS, sendS;
+        async codel <recvS>     sWaitForData(inout ::ids) yield sendS, recvS;
     };
 
     /*Homing: Calls kemarHoming(h) and k=KemarStructInit(h)*/

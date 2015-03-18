@@ -55,22 +55,34 @@ stateStart(genom_context self)
  * Yields to kemar_recvS, kemar_sendS.
  */
 genom_event
-sSend(const kemar_currentState *currentState, genom_context self)
+sSend(const kemar_currentState *currentState, kemar_ids *ids,
+      genom_context self)
 {
-
     if(h->homePos == true)
     {
+        kemarGetInfo(h, k);
+        //printf("[DEBUG State] velocity: %2.2f\n", k->velGearRadS);
         if(k->velGearRadS > 0)
         {
-            if(k->posGearRad[0]*(180/pi) > (h->driveParam.leftRadMax*(180/pi)-2))
+            //printf("[DEBUG State] position: %2.2f\n", k->posGearRad[0]*(180/pi));
+            //printf("[DEBUG State] left max: %2.2f\n", h->driveParam.leftRadMax*(180/pi));
+            if(k->posGearRad[0]*(180/pi) > (h->driveParam.leftRadMax*(180/pi)-3))
+            {
+                //printf("[DEBUG State] motoro stopped left\n");
                 kemarSetGearVelRadS(h, k, 0, MOTIONTYPE_VELCTRL);
+                //kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+            }
         }
         else
         {
             if(k->velGearRadS < 0)
             {
-                if(k->posGearRad[0]*(180/pi) < (h->driveParam.rightRadMax*(180/pi)+2))
+                if(k->posGearRad[0]*(180/pi) < (h->driveParam.rightRadMax*(180/pi)+3))
+                {
+                    //printf("[DEBUG State] motoro stopped right\n");
                     kemarSetGearVelRadS(h, k, 0, MOTIONTYPE_VELCTRL);
+                    //kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+                }
             }
         }
         if(flagC==0)
@@ -109,9 +121,9 @@ sSend(const kemar_currentState *currentState, genom_context self)
  * Yields to kemar_sendS, kemar_recvS.
  */
 genom_event
-sWaitForData(genom_context self)
+sWaitForData(kemar_ids *ids, genom_context self)
 {
-//    kemarGetInfo(h, k);
+    //kemarGetInfo(h, k);
     flagC=1;
 
     return kemar_sendS;

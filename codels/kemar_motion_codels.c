@@ -33,7 +33,6 @@
 
 #include "includes.h"
 
-double headVelocity=100;    //TODO: This should be in the IDS.
 /* --- Task motion ------------------------------------------------------ */
 
 
@@ -346,23 +345,6 @@ cpWaitForData(genom_context self)
     return kemar_sendCP;
 }
 
-
-/* --- Activity StopCurrentPosition ------------------------------------- */
-
-/** Codel scpStart of activity StopCurrentPosition.
- *
- * Triggered by kemar_start.
- * Yields to kemar_ether.
- *
-genom_event
-scpStart(genom_context self)
-{
-    showCP=1;
-
-    return kemar_ether;
-}*/
-
-
 /* --- Activity SetVelocity --------------------------------------------- */
 
 /** Codel svStart of activity SetVelocity.
@@ -394,7 +376,7 @@ mapStart(kemar_ids *ids, genom_context self)
     stepMAP=0;
     waitMAP=0;
 
-kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+    kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_sendMAP;
 }
 
@@ -521,7 +503,7 @@ genom_event
 mrpStart(kemar_ids *ids, genom_context self)
 {
     flagMRP=0;
-kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+    kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_sendMRP;
 }
 
@@ -617,6 +599,9 @@ cisSend(double velocity, genom_context self)
 {
     if(h->homePos == true)
     {
+        kemarSetGearVelRadS(h, k, (velocity*(pi/360)), MOTIONTYPE_VELCTRL);
+        //It is called twice because the first time that this activity is called by
+        //the user the head does not move.
         kemarSetGearVelRadS(h, k, (velocity*(pi/360)), MOTIONTYPE_VELCTRL);
     }
     else
