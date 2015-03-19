@@ -42,15 +42,10 @@ component kemar {
     
     ids{
         double headSpeed;
-
-        double kPosition;
-        double kVelocity;
-        double kLeftMax;
-        double kRightMax;
     };
 
     task motion {
-        codel <start>   motionStart(port out Indexes) yield ether;
+        codel <start>   motionStart(inout ::ids, port out Indexes) yield ether;
         codel <stop>    motionStop() yield ether;
     };
 
@@ -94,7 +89,7 @@ component kemar {
         task motion;
 
         codel <start>           mapStart(inout ::ids) yield sendMAP;
-        codel <sendMAP>         mapSend(in target, port out Indexes) yield recvMAP, ether; 
+        codel <sendMAP>         mapSend(inout ::ids, in target, port out Indexes) yield recvMAP, ether; 
         async codel <recvMAP>   mapWaitForData() yield sendMAP, recvMAP;
     };
 
@@ -119,5 +114,11 @@ component kemar {
 
     function GetPosition(out head Head){
         codel getPosition(out Head);
+    };
+
+    activity TEST(){
+        task motion;
+    
+        codel <start>        testStart() yield ether;
     };
 };

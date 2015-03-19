@@ -68,7 +68,7 @@ sSend(const kemar_currentState *currentState, kemar_ids *ids,
             //printf("[DEBUG State] left max: %2.2f\n", h->driveParam.leftRadMax*(180/pi));
             if(k->posGearRad[0]*(180/pi) > (h->driveParam.leftRadMax*(180/pi)-3))
             {
-                //printf("[DEBUG State] motoro stopped left\n");
+                //printf("[DEBUG State] motor stopped left\n");
                 kemarSetGearVelRadS(h, k, 0, MOTIONTYPE_VELCTRL);
                 //kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
             }
@@ -79,7 +79,7 @@ sSend(const kemar_currentState *currentState, kemar_ids *ids,
             {
                 if(k->posGearRad[0]*(180/pi) < (h->driveParam.rightRadMax*(180/pi)+3))
                 {
-                    //printf("[DEBUG State] motoro stopped right\n");
+                    //printf("[DEBUG State] motor stopped right\n");
                     kemarSetGearVelRadS(h, k, 0, MOTIONTYPE_VELCTRL);
                     //kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
                 }

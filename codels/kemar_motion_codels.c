@@ -42,7 +42,8 @@
  * Yields to kemar_ether.
  */
 genom_event
-motionStart(const kemar_Indexes *Indexes, genom_context self)
+motionStart(kemar_ids *ids, const kemar_Indexes *Indexes,
+            genom_context self)
 {
     /* init kemar head */
     h = kemarInit(MOTIONTYPE_POSCTRL);
@@ -56,6 +57,8 @@ motionStart(const kemar_Indexes *Indexes, genom_context self)
     Indexes->data(self)->stopTimeStamp.sec = 0;
     Indexes->data(self)->stopTimeStamp.usec = 0;
     Indexes->write(self);
+
+    ids->headSpeed=100;
 
     return kemar_ether;
 }
@@ -131,10 +134,8 @@ hSend(kemar_ids *ids, genom_context self)
         	/* init kemar head struct using homing init */
         	k = kemarStructInit(h);
             /*Sets Velocity to a 'default' value = 100deg/sec*/
-            //kemarSetGearVelRadS(h, k, (100*(pi/180)), MOTIONTYPE_POSCTRL);
-            ids->headSpeed=100;
             kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
-            printf("Sets velocity to default value of 100deg/sec\n");
+            printf("Sets velocity to default value of %2.2f deg/sec\n", ids->headSpeed);
             return kemar_ether;
         }        
     }
@@ -270,9 +271,15 @@ hWaitForData(genom_context self)
 genom_event
 svStart(double velocity, kemar_ids *ids, genom_context self)
 {
-    //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
     ids->headSpeed = velocity;
     kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+    /*kemarGetInfo(h, k);
+    printf("[DEBUG]: statusCtrl: 0x%08x\n", h->statusCtrl);
+    if(h->motionType == MOTIONTYPE_POSCTRL)
+        printf("[DEBUG] MOTIONTYPE_POSCTRL\n");
+    else
+        printf("[DEBUG] MOTIONTYPE_VECCTRL\n");
+    printf("[DEBUG] target velocity:  %6d (%3.8f = %2.2f)\n", k->velTargetEncIncrPeriod, k->velTargetGearRadS, k->velTargetGearRadS*(180/pi));*/
     return kemar_ether;
 }
 
@@ -291,7 +298,19 @@ mapStart(kemar_ids *ids, genom_context self)
     stepMAP=0;
     waitMAP=0;
 
+/**********************************************
+    //Set the speed according to the value stored in the ids.
+    printf("[DEBUG] ids->headSpeed: %2.2f\n", ids->headSpeed);
     kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+
+    kemarGetInfo(h, k);
+    printf("[DEBUG]: statusCtrl: 0x%08x\n", h->statusCtrl);
+    if(h->motionType == MOTIONTYPE_POSCTRL)
+        printf("[DEBUG] MOTIONTYPE_POSCTRL\n");
+    else
+        printf("[DEBUG] MOTIONTYPE_VECCTRL\n");
+    printf("[DEBUG] target velocity:  %6d (%3.8f = %2.2f)\n", k->velTargetEncIncrPeriod, k->velTargetGearRadS, k->velTargetGearRadS*(180/pi));
+**********************************************/
     return kemar_sendMAP;
 }
 
@@ -301,7 +320,7 @@ mapStart(kemar_ids *ids, genom_context self)
  * Yields to kemar_recvMAP, kemar_ether.
  */
 genom_event
-mapSend(double target, const kemar_Indexes *Indexes,
+mapSend(kemar_ids *ids, double target, const kemar_Indexes *Indexes,
         genom_context self)
 {
     if(h->homePos == true)
@@ -329,6 +348,8 @@ mapSend(double target, const kemar_Indexes *Indexes,
                 //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
                 //printf("[DEBUG] Returns kemarSetGearVelRadS\n");
                 printf("[DEBUG 3] Call kemarSetGearPosAbsRad\n");
+                printf("[DEBUG 3a] ids->headSpeed: %2.2f\n", ids->headSpeed);
+                kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
                 kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
                 printf("[DEBUG 4] Return kemarSetGearPosAbsRad\n");
                 Indexes->data(self)->stopPosition = target;
@@ -418,7 +439,7 @@ genom_event
 mrpStart(kemar_ids *ids, genom_context self)
 {
     flagMRP=0;
-    kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+    //kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
     return kemar_sendMRP;
 }
 
@@ -536,4 +557,70 @@ cisWaitForData(genom_context self)
 {
   /* skeleton sample: insert your code */
   /* skeleton sample */ return kemar_sendCIS;
+}
+
+
+/* --- Activity TEST ---------------------------------------------------- */
+
+/** Codel testStart of activity TEST.
+ *
+ * Triggered by kemar_start.
+ * Yields to kemar_ether.
+ */
+int stepTest=0;
+genom_event
+testStart(genom_context self)
+{
+    switch(stepTest)
+    {
+        case 0:
+            //Move to 45 (Absolute position)
+            printf("Moving in Absolute Position to 45 deg\n");
+            kemarSetGearPosAbsRad(h, k, (45*(pi/180)));
+            break;
+
+        case 1:
+            //Set velocity to 10 deg/sec
+            printf("Setting speed to 10 deg/sec\n");
+            kemarSetGearVelRadS(h, k, (10*(pi/180)), MOTIONTYPE_POSCTRL);
+            break;
+
+        case 2:
+            //Move to 0 (Absolute position)
+            printf("Moving in Absolute Position to 0 deg\n");
+            kemarSetGearPosAbsRad(h, k, (0*(pi/180)));
+            break;
+
+        case 3:
+            //Move at 50 deg/sec (Control in Speed)
+            printf("Moving at 50 deg/sec (control in speed)\n");
+            kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
+            //If this is called ONCE the head does not move.
+            kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
+            break;
+
+        case 4:
+            //Stops the head movement.
+            printf("Stopping the head (control in speed)\n");
+            kemarSetGearVelRadS(h, k, (0*(pi/360)), MOTIONTYPE_VELCTRL);
+            break;
+
+        case 5:
+            //Move to 0 (Absolute position)
+            printf("Moving in Absolute Position to 0 deg\n");
+            kemarSetGearVelRadS(h, k, (10*(pi/180)), MOTIONTYPE_POSCTRL);
+            kemarSetGearPosAbsRad(h, k, (0*(pi/180)));
+            break;
+
+        case 6:
+            //Move to 45 (Absolute position)
+            printf("Moving in Absolute Position to 45 deg\n");
+            kemarSetGearVelRadS(h, k, (10*(pi/180)), MOTIONTYPE_POSCTRL);
+            kemarSetGearPosAbsRad(h, k, (45*(pi/180)));
+            break;
+    }
+    stepTest++;
+    if(stepTest>6)
+        stepTest=0;
+    return kemar_ether;
 }
