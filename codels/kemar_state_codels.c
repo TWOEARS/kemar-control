@@ -60,7 +60,7 @@ sSend(const kemar_currentState *currentState, kemar_ids *ids,
 {
     if(h->homePos == true)
     {
-        kemarGetInfo(h, k);
+        //kemarGetInfo(h, k);
         //printf("[DEBUG State] velocity: %2.2f\n", k->velGearRadS);
         if(k->velGearRadS > 0)
         {

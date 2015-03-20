@@ -349,7 +349,7 @@ mapSend(kemar_ids *ids, double target, const kemar_Indexes *Indexes,
                 //printf("[DEBUG] Returns kemarSetGearVelRadS\n");
                 printf("[DEBUG 3] Call kemarSetGearPosAbsRad\n");
                 printf("[DEBUG 3a] ids->headSpeed: %2.2f\n", ids->headSpeed);
-                kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
+                //kemarSetGearVelRadS(h, k, (ids->headSpeed*(pi/180)), MOTIONTYPE_POSCTRL);
                 kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
                 printf("[DEBUG 4] Return kemarSetGearPosAbsRad\n");
                 Indexes->data(self)->stopPosition = target;
@@ -560,18 +560,19 @@ cisWaitForData(genom_context self)
 }
 
 
-/* --- Activity TEST ---------------------------------------------------- */
+/* --- Activity TESTPosToVel -------------------------------------------- */
 
-/** Codel testStart of activity TEST.
+/** Codel tptvStart of activity TESTPosToVel.
  *
  * Triggered by kemar_start.
  * Yields to kemar_ether.
  */
-int stepTest=0;
+int stepTestPosToVel=0;
 genom_event
-testStart(genom_context self)
+tptvStart(genom_context self)
 {
-    switch(stepTest)
+    printf("[DEBUG] stepTest %d: ", stepTestPosToVel);
+    switch(stepTestPosToVel)
     {
         case 0:
             //Move to 45 (Absolute position)
@@ -596,7 +597,7 @@ testStart(genom_context self)
             printf("Moving at 50 deg/sec (control in speed)\n");
             kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
             //If this is called ONCE the head does not move.
-            kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
+            //kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
             break;
 
         case 4:
@@ -616,11 +617,76 @@ testStart(genom_context self)
             //Move to 45 (Absolute position)
             printf("Moving in Absolute Position to 45 deg\n");
             kemarSetGearVelRadS(h, k, (10*(pi/180)), MOTIONTYPE_POSCTRL);
-            kemarSetGearPosAbsRad(h, k, (45*(pi/180)));
+            kemarSetGearPosAbsRad(h, k, (65*(pi/180)));
             break;
     }
-    stepTest++;
-    if(stepTest>6)
-        stepTest=0;
+    stepTestPosToVel++;
+    if(stepTestPosToVel>6)
+        stepTestPosToVel=0;
+    return kemar_ether;
+}
+
+
+/* --- Activity TESTVelToPos -------------------------------------------- */
+
+/** Codel tvtpStart of activity TESTVelToPos.
+ *
+ * Triggered by kemar_start.
+ * Yields to kemar_ether.
+ */
+int stepTestVelToPos=0;
+genom_event
+tvtpStart(genom_context self)
+{
+    printf("[DEBUG] stepTest %d: ", stepTestVelToPos);
+    switch(stepTestVelToPos)
+    {
+        case 0:
+            //Move at -50 deg/sec (Control in Speed)
+            printf("Moving at -50 deg/sec (control in speed)\n");
+            kemarSetGearVelRadS(h, k, (-50*(pi/360)), MOTIONTYPE_VELCTRL);
+            break;
+
+        case 1:
+            //Stops the head movement.
+            printf("Stopping the head (control in speed)\n");
+            kemarSetGearVelRadS(h, k, (0*(pi/360)), MOTIONTYPE_VELCTRL);
+            break;
+
+        case 2:
+            //Move to 45 (Absolute position)
+            printf("Moving in Absolute Position to 45 deg\n");
+            kemarSetGearPosAbsRad(h, k, (45*(pi/180)));
+            break;
+
+        case 3:
+            //Set velocity to 10 deg/sec
+            printf("Setting speed to 10 deg/sec\n");
+            kemarSetGearVelRadS(h, k, (10*(pi/180)), MOTIONTYPE_POSCTRL);
+            break;
+
+        case 4:
+            //Move to 0 (Absolute position)
+            printf("Moving in Absolute Position to 0 deg\n");
+            kemarSetGearVelRadS(h, k, (10*(pi/180)), MOTIONTYPE_POSCTRL);
+            kemarSetGearPosAbsRad(h, k, (0*(pi/180)));
+            break;
+
+        case 5:
+            //Move at 50 deg/sec (Control in Speed)
+            printf("Moving at 50 deg/sec (control in speed)\n");
+            kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
+            break;
+
+        case 6:
+            //Stops the head movement.
+            printf("Stopping the head (control in speed)\n");
+            kemarSetGearVelRadS(h, k, (0*(pi/360)), MOTIONTYPE_VELCTRL);
+            break;
+
+    }
+    stepTestVelToPos++;
+    if(stepTestVelToPos>6)
+        stepTestVelToPos=0;
     return kemar_ether;
 }

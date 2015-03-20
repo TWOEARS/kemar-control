@@ -412,6 +412,7 @@ kemarSetGearVelRadS(CAN_HARMONICA_STR *h, KEMAR_POS_VEL_STR *k, double VelGearRa
 	k->velTargetGearRadS = driveParamVelMotIncrPeriodToVelGearRadS(p, k->velTargetEncIncrPeriod);
 	if (kemarSetMotionType(h, motionType) == MOTIONTYPE_VELCTRL) {
 		intprtSetInt(h, 8, 'J', 'V', 0, k->velTargetEncIncrPeriod);
+		intprtSetInt(h, 8, 'J', 'V', 0, k->velTargetEncIncrPeriod);
 		intprtSetInt(h, 8, 'M', 'O', 0, MO_MOTOR_ENABLE);
 		intprtSetInt(h, 4, 'B', 'G', 0, 0);
 		intprtSetInt(h, 4, 'B', 'G', 0, 0);

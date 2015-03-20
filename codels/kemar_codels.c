@@ -41,16 +41,20 @@
 genom_event
 getPosition(kemar_head *Head, genom_context self)
 {
+    uint32_t sec, usec;
     if(h->homePos == true)
     {
+        gettimeofday(&tv, NULL);
+		sec = tv.tv_sec;
+		usec = tv.tv_usec;
         kemarGetInfo(h, k);
         Head->position = k->posGearRad[0]*(180/pi);
         Head->speed = k->velGearRadS*(180/pi);
         Head->maxLeft = h->driveParam.leftRadMax*(180/pi);        
         Head->maxRight = h->driveParam.rightRadMax*(180/pi);
         gettimeofday(&tv, NULL);
-		Head->time.sec = tv.tv_sec;
-		Head->time.usec = tv.tv_usec;
+		Head->time.sec = (sec + tv.tv_sec)/2;
+		Head->time.usec = (usec + tv.tv_usec)/2;
     }
     return genom_ok;
 }

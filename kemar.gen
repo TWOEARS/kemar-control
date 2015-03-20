@@ -116,9 +116,15 @@ component kemar {
         codel getPosition(out Head);
     };
 
-    activity TEST(){
+    activity TESTPosToVel(){
         task motion;
     
-        codel <start>        testStart() yield ether;
+        codel <start>        tptvStart() yield ether;
+    };
+
+    activity TESTVelToPos(){
+        task motion;
+    
+        codel <start>        tvtpStart() yield ether;
     };
 };
