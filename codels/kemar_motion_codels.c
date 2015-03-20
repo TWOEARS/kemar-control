@@ -595,7 +595,7 @@ tptvStart(genom_context self)
         case 3:
             //Move at 50 deg/sec (Control in Speed)
             printf("Moving at 50 deg/sec (control in speed)\n");
-            kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
+            kemarSetGearVelRadS(h, k, (50*(pi/180)), MOTIONTYPE_VELCTRL);
             //If this is called ONCE the head does not move.
             //kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
             break;
@@ -603,7 +603,7 @@ tptvStart(genom_context self)
         case 4:
             //Stops the head movement.
             printf("Stopping the head (control in speed)\n");
-            kemarSetGearVelRadS(h, k, (0*(pi/360)), MOTIONTYPE_VELCTRL);
+            kemarSetGearVelRadS(h, k, (0*(pi/180)), MOTIONTYPE_VELCTRL);
             break;
 
         case 5:
@@ -644,13 +644,13 @@ tvtpStart(genom_context self)
         case 0:
             //Move at -50 deg/sec (Control in Speed)
             printf("Moving at -50 deg/sec (control in speed)\n");
-            kemarSetGearVelRadS(h, k, (-50*(pi/360)), MOTIONTYPE_VELCTRL);
+            kemarSetGearVelRadS(h, k, (-50*(pi/180)), MOTIONTYPE_VELCTRL);
             break;
 
         case 1:
             //Stops the head movement.
             printf("Stopping the head (control in speed)\n");
-            kemarSetGearVelRadS(h, k, (0*(pi/360)), MOTIONTYPE_VELCTRL);
+            kemarSetGearVelRadS(h, k, (0*(pi/180)), MOTIONTYPE_VELCTRL);
             break;
 
         case 2:
@@ -675,13 +675,13 @@ tvtpStart(genom_context self)
         case 5:
             //Move at 50 deg/sec (Control in Speed)
             printf("Moving at 50 deg/sec (control in speed)\n");
-            kemarSetGearVelRadS(h, k, (50*(pi/360)), MOTIONTYPE_VELCTRL);
+            kemarSetGearVelRadS(h, k, (50*(pi/180)), MOTIONTYPE_VELCTRL);
             break;
 
         case 6:
             //Stops the head movement.
             printf("Stopping the head (control in speed)\n");
-            kemarSetGearVelRadS(h, k, (0*(pi/360)), MOTIONTYPE_VELCTRL);
+            kemarSetGearVelRadS(h, k, (0*(pi/180)), MOTIONTYPE_VELCTRL);
             break;
 
     }
