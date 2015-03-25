@@ -50,12 +50,12 @@ component kemar {
     };
 
     task state {
-        period                  2ms;
+        period                  10ms;
         priority                400;
         stack                   4000;
 
         codel <start>           stateStart() yield sendS;
-        async codel <sendS>           sSend(port out currentState, inout ::ids) yield recvS, sendS;
+        async codel <sendS>     sSend(port out currentState, inout ::ids) yield recvS, sendS;
         async codel <recvS>     sWaitForData(inout ::ids) yield sendS, recvS;
     };
 

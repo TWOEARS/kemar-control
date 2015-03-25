@@ -58,9 +58,23 @@ genom_event
 sSend(const kemar_currentState *currentState, kemar_ids *ids,
       genom_context self)
 {
+    uint32_t sec, usec;
     if(h->homePos == true)
     {
-        //kemarGetInfo(h, k);
+        gettimeofday(&tv, NULL);
+		sec = tv.tv_sec;
+		usec = tv.tv_usec;
+
+        kemarGetInfo(h, k);
+
+        currentState->data(self)->position = k->posGearRad[0]*(180/pi);
+        currentState->data(self)->speed = k->velGearRadS*(180/pi);
+        currentState->data(self)->maxLeft = h->driveParam.leftRadMax*(180/pi);
+        currentState->data(self)->maxRight = h->driveParam.rightRadMax*(180/pi);
+		gettimeofday(&tv, NULL);
+		currentState->data(self)->time.sec = (sec + tv.tv_sec)/2;
+		currentState->data(self)->time.usec = (usec + tv.tv_usec)/2;
+        currentState->write(self); 
         //printf("[DEBUG State] velocity: %2.2f\n", k->velGearRadS);
         if(k->velGearRadS > 0)
         {
@@ -85,31 +99,32 @@ sSend(const kemar_currentState *currentState, kemar_ids *ids,
                 }
             }
         }
+
         if(flagC==0)
             return kemar_sendS;
         else
         {
             flagC = 0;
-            currentState->data(self)->position = k->posGearRad[0]*(180/pi);
+            /*currentState->data(self)->position = k->posGearRad[0]*(180/pi);
             currentState->data(self)->speed = k->velGearRadS*(180/pi);
             currentState->data(self)->maxLeft = h->driveParam.leftRadMax*(180/pi);
             currentState->data(self)->maxRight = h->driveParam.rightRadMax*(180/pi);
 			gettimeofday(&tv, NULL);
 			currentState->data(self)->time.sec = tv.tv_sec;
 			currentState->data(self)->time.usec = tv.tv_usec;
-            currentState->write(self); 
+            currentState->write(self); */
             return kemar_sendS;
         }      
     }
     else
     {
-        currentState->data(self)->position = 0;
+        /*currentState->data(self)->position = 0;
         currentState->data(self)->speed = 0;
         currentState->data(self)->maxLeft = 0;
         currentState->data(self)->maxRight = 0;
 		currentState->data(self)->time.sec = 0;
 		currentState->data(self)->time.usec = 0;
-        currentState->write(self); 
+        currentState->write(self); */
         return kemar_sendS;
     }
 }
