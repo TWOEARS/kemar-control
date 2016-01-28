@@ -53,7 +53,7 @@
 #define DIFF_VALID_MSG_S        2.0
 #define DIFF_VALID_POS_INCR     4.0          
 
-#define CAN_ID                  "can0"
+#define CAN_ID                  "can1"
 #define HARMONICA_ID             0x7F
 
 /* motor state */
