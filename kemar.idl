@@ -29,6 +29,10 @@
  */
 module kemar {
 
+    struct cmd_vel {
+        double speed;
+    };
+
     struct timestamp
     {
         unsigned long sec;

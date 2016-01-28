@@ -55,12 +55,18 @@ stateStart(genom_context self)
  * Yields to kemar_recvS, kemar_sendS.
  */
 genom_event
-sSend(const kemar_currentState *currentState, kemar_ids *ids,
-      genom_context self)
+sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
+      kemar_ids *ids, genom_context self)
 {
     uint32_t sec, usec;
     if(h->homePos == true)
     {
+        Cmd->read(self);
+        if (Cmd->data(self) != NULL) {
+            kemarSetGearVelRadS(h, k, Cmd->data(self)->speed, MOTIONTYPE_VELCTRL);
+            kemarSetGearVelRadS(h, k, Cmd->data(self)->speed, MOTIONTYPE_VELCTRL);
+        }
+
         gettimeofday(&tv, NULL);
 		sec = tv.tv_sec;
 		usec = tv.tv_usec;

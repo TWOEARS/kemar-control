@@ -35,6 +35,8 @@ component kemar {
     require     "genom3 >= 2.99.24";
     codels-require "elmo-axis-libs";
 
+    port in kemar::cmd_vel Cmd;
+
     port out kemar::state currentState;
 	port out kemar::position_indexes_movement Indexes;
 
@@ -55,7 +57,7 @@ component kemar {
         stack                   4000;
 
         codel <start>           stateStart() yield sendS;
-        async codel <sendS>     sSend(port out currentState, inout ::ids) yield recvS, sendS;
+        async codel <sendS>     sSend(port in Cmd, port out currentState, inout ::ids) yield recvS, sendS;
         async codel <recvS>     sWaitForData(inout ::ids) yield sendS, recvS;
     };
 
