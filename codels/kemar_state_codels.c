@@ -52,7 +52,7 @@ stateStart(genom_context self)
 /** Codel sSend of task state.
  *
  * Triggered by kemar_sendS.
- * Yields to kemar_recvS, kemar_sendS.
+ * Yields to kemar_pause_recvS, kemar_pause_sendS.
  */
 genom_event
 sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
@@ -107,7 +107,7 @@ sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
         }
 
         if(flagC==0)
-            return kemar_sendS;
+            return kemar_pause_sendS;
         else
         {
             flagC = 0;
@@ -119,7 +119,7 @@ sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
 			currentState->data(self)->time.sec = tv.tv_sec;
 			currentState->data(self)->time.usec = tv.tv_usec;
             currentState->write(self); */
-            return kemar_sendS;
+            return kemar_pause_sendS;
         }      
     }
     else
@@ -131,7 +131,7 @@ sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
 		currentState->data(self)->time.sec = 0;
 		currentState->data(self)->time.usec = 0;
         currentState->write(self); */
-        return kemar_sendS;
+        return kemar_pause_sendS;
     }
 }
 
@@ -139,7 +139,7 @@ sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
 /** Codel sWaitForData of task state.
  *
  * Triggered by kemar_recvS.
- * Yields to kemar_sendS, kemar_recvS.
+ * Yields to kemar_pause_sendS, kemar_pause_recvS.
  */
 genom_event
 sWaitForData(kemar_ids *ids, genom_context self)
@@ -147,5 +147,5 @@ sWaitForData(kemar_ids *ids, genom_context self)
     //kemarGetInfo(h, k);
     flagC=1;
 
-    return kemar_sendS;
+    return kemar_pause_sendS;
 }

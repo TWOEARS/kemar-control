@@ -32,7 +32,7 @@
 component kemar {
     version     "1.0";
     lang        "c";
-    require     "genom3 >= 2.99.24";
+    require     "genom3 >= 2.99.26";
     codels-require "elmo-axis-libs";
 
     port in kemar::cmd_vel Cmd;
@@ -57,8 +57,8 @@ component kemar {
         stack                   4000;
 
         codel <start>           stateStart() yield sendS;
-        async codel <sendS>     sSend(port in Cmd, port out currentState, inout ::ids) yield recvS, sendS;
-        async codel <recvS>     sWaitForData(inout ::ids) yield sendS, recvS;
+        codel <sendS>           sSend(port in Cmd, port out currentState, inout ::ids) yield pause::recvS, pause::sendS;
+        codel <recvS>           sWaitForData(inout ::ids) yield pause::sendS, pause::recvS;
     };
 
     /*Homing: Calls kemarHoming(h) and k=KemarStructInit(h)*/
@@ -67,7 +67,7 @@ component kemar {
 
         codel <start>           hStart() yield sendH;
         codel <sendH>           hSend(inout ::ids) yield recvH, ether;
-        async codel <recvH>     hWaitForData() yield sendH, recvH, ether;
+        codel <recvH>           hWaitForData() yield sendH, recvH, ether;
     };
 
     /*Current Position: calls kemarGetInfo*/
@@ -76,7 +76,7 @@ component kemar {
 
         codel <start>           cpStart() yield sendCP;
         codel <sendCP>          cpSend(port out currentState) yield recvCP, sendCP, ether;
-        async codel <recvCP>    cpWaitForData() yield sendCP, recvCP;
+        codel <recvCP>          cpWaitForData() yield sendCP, recvCP;
     };*/
 
     /*Set Velocity: calls kemarSetGearVelRadS*/
@@ -92,7 +92,7 @@ component kemar {
 
         codel <start>           mapStart(inout ::ids) yield sendMAP;
         codel <sendMAP>         mapSend(inout ::ids, in target, port out Indexes) yield recvMAP, ether; 
-        async codel <recvMAP>   mapWaitForData() yield sendMAP, recvMAP;
+        codel <recvMAP>         mapWaitForData() yield sendMAP, recvMAP;
     };
 
     /*Move Relative Position: calls kemarSetGearVelRadS, kemarSetGearPosRelRad, kemarWaitMsgValid*/
@@ -101,7 +101,7 @@ component kemar {
 
         codel <start>           mrpStart(inout ::ids) yield sendMRP;
         codel <sendMRP>         mrpSend(in target) yield recvMRP, ether;
-        async codel <recvMRP>   mrpWaitForData() yield sendMRP, recvMRP;
+        codel <recvMRP>         mrpWaitForData() yield sendMRP, recvMRP;
     };
 
     /*Control in Speed (Reads Velocity to set): calls kemarSetGearVelRadS*/
@@ -110,7 +110,7 @@ component kemar {
 
         codel <start>           cisStart() yield sendCIS;
         codel <sendCIS>         cisSend(in velocity) yield recvCIS, ether;
-        async codel<recvCIS>    cisWaitForData() yield sendCIS, recvCIS;
+        codel<recvCIS>          cisWaitForData() yield sendCIS, recvCIS;
         
     };
 
