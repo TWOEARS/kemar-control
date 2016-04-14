@@ -55,6 +55,7 @@
 
 #define CAN_ID                  "can1"
 #define HARMONICA_ID             0x7F
+#define BREAKER_ACTIVE_LEVEL	IL_ACTIVE_LOW
 
 /* motor state */
 typedef enum HOMING_STATE {

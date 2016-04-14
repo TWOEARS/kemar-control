@@ -207,8 +207,8 @@ int
 kemarSwitchesInit(CAN_HARMONICA_STR *h) 
 {
 	/* Set DIN#5 & DIN#6 as RLS & FLS switchs (active high) */
-	intprtSetInt(h, 8, 'I', 'L', 5, IL_ACTIVE_HIGH | IL_FCT_HARD_EN_RLS);
-	intprtSetInt(h, 8, 'I', 'L', 6, IL_ACTIVE_HIGH | IL_FCT_HARD_EN_FLS);
+	intprtSetInt(h, 8, 'I', 'L', 5, BREAKER_ACTIVE_LEVEL | IL_FCT_HARD_EN_RLS);
+	intprtSetInt(h, 8, 'I', 'L', 6, BREAKER_ACTIVE_LEVEL | IL_FCT_HARD_EN_FLS);
 	/* Wait for RLS & FLS switchs actives */
 	return (kemarWaitMsgValid(h, MSG_IL, 0.0));
 }

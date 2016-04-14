@@ -860,9 +860,9 @@ harmonicaDecode(CAN_HARMONICA_STR *h, CAN_MSG *msg)
     		switch(((msg->data[0]) << 8) | (msg->data[1])) {
 		case HARMONICA_MSG('I', 'L') :
 			/* IO configuration status */
-				if((msg->data[2] == 5) && ((para & IL_FCT_MASK) == IL_FCT_HARD_EN_RLS) && (para & IL_ACTIVE_MASK))
+				if((msg->data[2] == 5) && ((para & IL_FCT_MASK) == IL_FCT_HARD_EN_RLS) && ((para & IL_ACTIVE_MASK) == BREAKER_ACTIVE_LEVEL))
 					(h->RxValidEvt.msgILValid |= 1);
-				if((msg->data[2] == 6) && ((para & IL_FCT_MASK) == IL_FCT_HARD_EN_FLS) && (para & IL_ACTIVE_MASK))
+				if((msg->data[2] == 6) && ((para & IL_FCT_MASK) == IL_FCT_HARD_EN_FLS) && ((para & IL_ACTIVE_MASK) == BREAKER_ACTIVE_LEVEL))
 					(h->RxValidEvt.msgILValid |= 2);
 				break;
 		case HARMONICA_MSG('I', 'P') :
