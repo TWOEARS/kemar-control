@@ -59,6 +59,7 @@ motionStart(kemar_ids *ids, const kemar_Indexes *Indexes,
     Indexes->write(self);
 
     ids->headSpeed=100;
+    printf("Default speed set to %.2f\n", ids->headSpeed);
 
     return kemar_ether;
 }
@@ -453,17 +454,25 @@ mrpSend(double target, genom_context self)
 {
     if(h->homePos == true)
     {
-        if(flagMRP==0)
+        if(target!=0)   //There is no point to call the function if target is 0.
         {
-            //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
-            globalTarget = (k->posGearRad[0]*(180/pi)) + target;
-            //printf("[DEBUG] globalTarget: %2.3f\n", globalTarget);
-	        kemarSetGearPosRelRad(h, k, (target*(pi/180)));
-            return kemar_recvMRP;
+            if(flagMRP==0)
+            {
+                //kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_POSCTRL);
+                globalTarget = (k->posGearRad[0]*(180/pi)) + target;
+                //printf("[DEBUG] globalTarget: %2.3f\n", globalTarget);
+	            kemarSetGearPosRelRad(h, k, (target*(pi/180)));
+                return kemar_recvMRP;
+            }
+            else
+            {
+                flagMRP=0;
+                return kemar_ether;
+            }
         }
         else
         {
-            flagMRP=0;
+            printf("Target should be different than zero\n");
             return kemar_ether;
         }
     }
