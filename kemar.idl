@@ -36,7 +36,7 @@ module kemar {
     struct timestamp
     {
         unsigned long sec;
-        unsigned long usec;
+        unsigned long nsec;
     };
 
     struct state

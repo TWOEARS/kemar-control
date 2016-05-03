@@ -52,10 +52,10 @@ motionStart(kemar_ids *ids, const kemar_Indexes *Indexes,
 
     Indexes->data(self)->startPosition = 0;
     Indexes->data(self)->startTimeStamp.sec = 0;
-    Indexes->data(self)->startTimeStamp.usec = 0;
+    Indexes->data(self)->startTimeStamp.nsec = 0;
     Indexes->data(self)->stopPosition = 0;
     Indexes->data(self)->stopTimeStamp.sec = 0;
-    Indexes->data(self)->stopTimeStamp.usec = 0;
+    Indexes->data(self)->stopTimeStamp.nsec = 0;
     Indexes->write(self);
 
     ids->headSpeed=100;
@@ -340,7 +340,7 @@ mapSend(kemar_ids *ids, double target, const kemar_Indexes *Indexes,
                 /*Post the current (start) position in the port*/
 				gettimeofday(&tv, NULL);
 				Indexes->data(self)->startTimeStamp.sec = tv.tv_sec;
-				Indexes->data(self)->startTimeStamp.usec = tv.tv_usec;
+				Indexes->data(self)->startTimeStamp.nsec = tv.tv_usec*1000;
                 printf("[DEBUG 2] Current position: %3.8f\n", k->posGearRad[0]*(180/pi));
                 Indexes->data(self)->startPosition = k->posGearRad[0]*(180/pi);
 
@@ -367,7 +367,7 @@ mapSend(kemar_ids *ids, double target, const kemar_Indexes *Indexes,
                 /*Post the current (stop) position in the port*/
 				gettimeofday(&tv, NULL);
 				Indexes->data(self)->stopTimeStamp.sec = tv.tv_sec;
-				Indexes->data(self)->stopTimeStamp.usec = tv.tv_usec;
+				Indexes->data(self)->stopTimeStamp.nsec = tv.tv_usec*1000;
                 Indexes->write(self);
                 printf("[DEBUG 7]: Saves Stop Index and returns ether\n");
                 return kemar_ether;
