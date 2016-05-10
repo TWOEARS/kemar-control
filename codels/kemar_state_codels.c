@@ -58,7 +58,7 @@ genom_event
 sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
       kemar_ids *ids, genom_context self)
 {
-    uint32_t sec, usec;
+    uint32_t sec, nsec;
     if(h->homePos == true)
     {
         Cmd->read(self);
@@ -69,7 +69,7 @@ sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
 
         gettimeofday(&tv, NULL);
 		sec = tv.tv_sec;
-		usec = tv.tv_usec;
+		nsec = tv.tv_usec*1000;
 
         kemarGetInfo(h, k);
 
@@ -79,7 +79,7 @@ sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
         currentState->data(self)->maxRight = h->driveParam.rightRadMax*(180/pi);
 		gettimeofday(&tv, NULL);
 		currentState->data(self)->time.sec = (sec + tv.tv_sec)/2;
-		currentState->data(self)->time.usec = (usec + tv.tv_usec)/2;
+		currentState->data(self)->time.nsec = (nsec + tv.tv_usec*1000)/2;
         currentState->write(self); 
         //printf("[DEBUG State] velocity: %2.2f\n", k->velGearRadS);
         if(k->velGearRadS > 0)
