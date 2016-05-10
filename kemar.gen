@@ -89,6 +89,7 @@ component kemar {
     /*Move Absolute Position: calls kemarSetGearVelRadS, kemarSetGearPosAbsRad, kemarWaitMsgValid*/
     activity MoveAbsolutePosition(in double target) {
         task motion;
+        interrupts MoveAbsolutePosition;
 
         codel <start>           mapStart(inout ::ids) yield sendMAP;
         codel <sendMAP>         mapSend(inout ::ids, in target, port out Indexes) yield recvMAP, ether; 
@@ -98,6 +99,7 @@ component kemar {
     /*Move Relative Position: calls kemarSetGearVelRadS, kemarSetGearPosRelRad, kemarWaitMsgValid*/
     activity MoveRelativePosition(in double target) {
         task motion;
+        interrupts MoveRelativePosition;
 
         codel <start>           mrpStart(inout ::ids) yield sendMRP;
         codel <sendMRP>         mrpSend(in target) yield recvMRP, ether;
