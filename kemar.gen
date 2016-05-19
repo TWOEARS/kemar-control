@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015, LAAS/CNRS
+/*  Copyright (c) 2015-2016, LAAS/CNRS
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -30,15 +30,12 @@
 
 #include "kemar.idl"
 component kemar {
-    version     "1.0";
+    version     "1.1";
     lang        "c";
     require     "genom3 >= 2.99.26";
     codels-require "elmo-axis-libs";
 
     port in kemar::cmd_vel Cmd;
-
-    port out kemar::state currentState;
-	port out kemar::position_indexes_movement Indexes;
 
     typedef kemar::state head;
     
@@ -47,7 +44,7 @@ component kemar {
     };
 
     task motion {
-        codel <start>   motionStart(inout ::ids, port out Indexes) yield ether;
+        codel <start>   motionStart(inout ::ids) yield ether;
         codel <stop>    motionStop() yield ether;
     };
 
@@ -57,8 +54,7 @@ component kemar {
         stack                   4000;
 
         codel <start>           stateStart() yield sendS;
-        codel <sendS>           sSend(port in Cmd, port out currentState, inout ::ids) yield pause::recvS, pause::sendS;
-        codel <recvS>           sWaitForData(inout ::ids) yield pause::sendS, pause::recvS;
+        codel <sendS>           sSend(port in Cmd, inout ::ids) yield pause::sendS;
     };
 
     /*Homing: Calls kemarHoming(h) and k=KemarStructInit(h)*/
@@ -70,15 +66,6 @@ component kemar {
         codel <recvH>           hWaitForData() yield sendH, recvH, ether;
     };
 
-    /*Current Position: calls kemarGetInfo*/
-    /*activity CurrentPosition() {
-        task motion;
-
-        codel <start>           cpStart() yield sendCP;
-        codel <sendCP>          cpSend(port out currentState) yield recvCP, sendCP, ether;
-        codel <recvCP>          cpWaitForData() yield sendCP, recvCP;
-    };*/
-
     /*Set Velocity: calls kemarSetGearVelRadS*/
     activity SetVelocity(in double velocity) {
         task motion;
@@ -89,21 +76,17 @@ component kemar {
     /*Move Absolute Position: calls kemarSetGearVelRadS, kemarSetGearPosAbsRad, kemarWaitMsgValid*/
     activity MoveAbsolutePosition(in double target) {
         task motion;
-        interrupts MoveAbsolutePosition;
 
         codel <start>           mapStart(inout ::ids) yield sendMAP;
-        codel <sendMAP>         mapSend(inout ::ids, in target, port out Indexes) yield recvMAP, ether; 
-        codel <recvMAP>         mapWaitForData() yield sendMAP, recvMAP;
+        codel <sendMAP>         mapSend(inout ::ids, in target) yield ether;
     };
 
     /*Move Relative Position: calls kemarSetGearVelRadS, kemarSetGearPosRelRad, kemarWaitMsgValid*/
     activity MoveRelativePosition(in double target) {
         task motion;
-        interrupts MoveRelativePosition;
 
         codel <start>           mrpStart(inout ::ids) yield sendMRP;
-        codel <sendMRP>         mrpSend(in target) yield recvMRP, ether;
-        codel <recvMRP>         mrpWaitForData() yield sendMRP, recvMRP;
+        codel <sendMRP>         mrpSend(inout ::ids, in target) yield ether;
     };
 
     /*Control in Speed (Reads Velocity to set): calls kemarSetGearVelRadS*/
@@ -111,24 +94,11 @@ component kemar {
         task motion;
 
         codel <start>           cisStart() yield sendCIS;
-        codel <sendCIS>         cisSend(in velocity) yield recvCIS, ether;
-        codel<recvCIS>          cisWaitForData() yield sendCIS, recvCIS;
+        codel <sendCIS>         cisSend(inout ::ids, in velocity) yield ether;
         
     };
 
     function GetPosition(out head Head){
         codel getPosition(out Head);
-    };
-
-    activity TESTPosToVel(){
-        task motion;
-    
-        codel <start>        tptvStart() yield ether;
-    };
-
-    activity TESTVelToPos(){
-        task motion;
-    
-        codel <start>        tvtpStart() yield ether;
     };
 };
