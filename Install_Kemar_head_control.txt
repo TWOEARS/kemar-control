@@ -12,7 +12,7 @@ download at http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-dr
     > make)
 > sudo make install
 
-This command need to be called once, everytime the computer is started.
+This command need to be called once, every time the computer is started.
 > sudo /sbin/modprobe pcan
 
 This command need to be called once, then we can use the card to communicate.
