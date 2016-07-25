@@ -158,7 +158,7 @@ hWaitForData(genom_context self)
             printf("Kemar Homing waits [%d]: ", stepH+1);
             printf("Request Mask IT & save previous mask & disable all IT\n");
 	        /* Request Mask IT & save previous mask & disable all IT */
-	        if(kemarWaitMsgValid(h, MSG_MI, 0.0))
+	        if(kemarWaitMsgValid(h, MSG_MI))
             {
                 printf("{Request Mask IT & save previous mask & disable all IT} failed\n");
 		        return kemar_ether;
@@ -192,7 +192,7 @@ hWaitForData(genom_context self)
             printf("Kemar Homing waits [%d]: ", stepH+1);
             printf("Request absolute position & save it\n");
 	        /* Request absolute position & save it */
-	        if(kemarWaitMsgValid(h, MSG_PX, 0.0))
+	        if(kemarWaitMsgValid(h, MSG_PX))
             {
                 printf("{Request absolute position & save it} failed\n");
 		        return kemar_ether;
@@ -233,7 +233,7 @@ hWaitForData(genom_context self)
             printf("Kemar Homing waits [%d]: ", stepH+1);
             printf("Purge incoming messages\n");
         	/* Purge incoming messages */
-	        kemarWaitMsgValid(h, MSG_PULL, 0.0);
+	        kemarWaitMsgValid(h, MSG_PULL);
             flagH=1;
             return kemar_sendH;
         case 9:
@@ -305,7 +305,7 @@ mapSend(kemar_ids *ids, double target, genom_context self)
         if(h->motionType !=MOTIONTYPE_POSCTRL)
             kemarSetGearVelRadS(h, k, ((ids->headSpeed)*(pi/180)), MOTIONTYPE_POSCTRL);
         kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
-        kemarWaitMsgValid(h, MSG_PX_TARGET, (target*(pi/180)));
+        kemarWaitMsgValid(h, MSG_PX_TARGET);
     }
     else
     {
@@ -354,7 +354,7 @@ mrpSend(kemar_ids *ids, double target, genom_context self)
         if(h->motionType !=MOTIONTYPE_POSCTRL)
             kemarSetGearVelRadS(h, k, ((ids->headSpeed)*(pi/180)), MOTIONTYPE_POSCTRL);
         kemarSetGearPosRelRad(h, k, (target*(pi/180)));
-        kemarWaitMsgValid(h, MSG_PX_TARGET, (target*(pi/180)));
+        kemarWaitMsgValid(h, MSG_PX_TARGET);
         kemarGetInfo(h, k);
     }
     else
@@ -415,7 +415,7 @@ cisSend(kemar_ids *ids, double velocity, genom_context self)
                     target = h->driveParam.rightRadMax*(180/pi)+0.5;
             }
             kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
-            kemarWaitMsgValid(h, MSG_PX_TARGET, (target*(pi/180)));
+            kemarWaitMsgValid(h, MSG_PX_TARGET);
 
             // Move the head to the position when the user sent the command to stop it.
             target = currentPos;
@@ -428,7 +428,7 @@ cisSend(kemar_ids *ids, double velocity, genom_context self)
                     target = h->driveParam.rightRadMax*(180/pi)+0.5;
             }
             kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
-            kemarWaitMsgValid(h, MSG_PX_TARGET, (target*(pi/180)));
+            kemarWaitMsgValid(h, MSG_PX_TARGET);
         }
         else
             kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_VELCTRL);
