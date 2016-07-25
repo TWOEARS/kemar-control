@@ -39,7 +39,6 @@
 #include <time.h>
 
 #define pi 3.14159265359
-#define overShoot   10   // Angles to 'overshoot' when the velocity (control in speed) is set to 0.
 
 CAN_HARMONICA_STR *h;
 KEMAR_POS_VEL_STR *k;
