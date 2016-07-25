@@ -56,8 +56,10 @@ stateStart(genom_context self)
  * Yields to kemar_pause_sendS.
  */
 genom_event
-sSend(const kemar_Cmd *Cmd, kemar_ids *ids, genom_context self)
+sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
+      kemar_ids *ids, genom_context self)
 {
+    uint32_t sec, nsec;
 
     if(h->homePos == true) {
         Cmd->read(self);
@@ -67,6 +69,19 @@ sSend(const kemar_Cmd *Cmd, kemar_ids *ids, genom_context self)
                 previousVel = Cmd->data(self)->speed;
             }
         }
+
+        gettimeofday(&tv, NULL);
+        sec = tv.tv_sec;
+        nsec = tv.tv_usec*1000;
+        kemarGetInfo(h, k);
+        currentState->data(self)->position = k->posGearRad[0]*(180/pi);
+        currentState->data(self)->speed = k->velGearRadS*(180/pi);
+        currentState->data(self)->maxLeft = h->driveParam.leftRadMax*(180/pi);
+        currentState->data(self)->maxRight = h->driveParam.rightRadMax*(180/pi);
+        gettimeofday(&tv, NULL);
+        currentState->data(self)->time.sec = (sec + tv.tv_sec)/2;
+        currentState->data(self)->time.nsec = (nsec + tv.tv_usec*1000)/2;
+        currentState->write(self);
     }
 
     return kemar_pause_sendS;

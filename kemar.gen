@@ -36,6 +36,7 @@ component kemar {
     codels-require "elmo-axis-libs";
 
     port in kemar::cmd_vel Cmd;
+    port out kemar::state currentState;
 
     typedef kemar::state head;
     
@@ -54,7 +55,7 @@ component kemar {
         stack                   4000;
 
         codel <start>           stateStart() yield sendS;
-        codel <sendS>           sSend(port in Cmd, inout ::ids) yield pause::sendS;
+        codel <sendS>           sSend(port in Cmd, port out currentState, inout ::ids) yield pause::sendS;
     };
 
     /*Homing: Calls kemarHoming(h) and k=KemarStructInit(h)*/
