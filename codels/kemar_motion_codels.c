@@ -391,47 +391,7 @@ cisSend(kemar_ids *ids, double velocity, genom_context self)
     double currentPos, target;
     if(h->homePos == true)
     {
-        // If user requests the head to stop, avoid a sudden stop.
-        if(velocity == 0)
-        {
-            // Get current position.
-            kemarGetInfo(h, k);
-            currentPos = k->posGearRad[0]*(180/pi);
-            // Change to control in position (to have the acceleration and deaceleration curve).
-            kemarSetGearVelRadS(h, k, ((ids->headSpeed)*(pi/180)), MOTIONTYPE_POSCTRL);
-            // Check if the head was moving to the left (>0) or to the right (<0)
-            if(k->velGearRadS>0)
-                target = currentPos + overShoot;
-            else
-                target = currentPos - overShoot;
-
-            // Move the head to the "overShoot" position to stop it smoothly.
-            if((target < (h->driveParam.rightRadMax*(180/pi))) || (target > (h->driveParam.leftRadMax*(180/pi))))
-            {
-                // This is to avoid a sudden stop when it reaches the limit sensors.
-                if(target>0)
-                    target = h->driveParam.leftRadMax*(180/pi)-0.5;
-                else
-                    target = h->driveParam.rightRadMax*(180/pi)+0.5;
-            }
-            kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
-            kemarWaitMsgValid(h, MSG_PX_TARGET);
-
-            // Move the head to the position when the user sent the command to stop it.
-            target = currentPos;
-            if((target < (h->driveParam.rightRadMax*(180/pi))) || (target > (h->driveParam.leftRadMax*(180/pi))))
-            {
-                // This is to avoid a sudden stop when it reaches the limit sensors.
-                if(target>0)
-                    target = h->driveParam.leftRadMax*(180/pi)-0.5;
-                else
-                    target = h->driveParam.rightRadMax*(180/pi)+0.5;
-            }
-            kemarSetGearPosAbsRad(h, k, (target*(pi/180)));
-            kemarWaitMsgValid(h, MSG_PX_TARGET);
-        }
-        else
-            kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_VELCTRL);
+        kemarSetGearVelRadS(h, k, (velocity*(pi/180)), MOTIONTYPE_VELCTRL);
     }
     else
     {
