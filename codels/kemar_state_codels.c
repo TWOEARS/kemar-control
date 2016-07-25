@@ -32,6 +32,7 @@
 
 #include "kemar_c_types.h"
 
+#include <sys/time.h>
 #include "includes.h"
 double previousVel = 0;
 /* --- Task state ------------------------------------------------------- */
@@ -60,6 +61,7 @@ sSend(const kemar_Cmd *Cmd, const kemar_currentState *currentState,
       kemar_ids *ids, genom_context self)
 {
     uint32_t sec, nsec;
+    struct timeval tv;
 
     if(h->homePos == true) {
         Cmd->read(self);

@@ -36,15 +36,12 @@
 #include "elmo-axis/harmonica.h"
 #include "elmo-axis/kemar.h"
 
-#include <time.h>
-
 #define pi 3.14159265359
 
 CAN_HARMONICA_STR *h;
 KEMAR_POS_VEL_STR *k;
 CAN_DRIVE_PARAMS *p;
 
-struct timeval tv;
 
 // Default velocity.
 //double headVelocity=100;

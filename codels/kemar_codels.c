@@ -32,6 +32,7 @@
 
 #include "kemar_c_types.h"
 
+#include <sys/time.h>
 #include "includes.h"
 /* --- Function GetPosition --------------------------------------------- */
 
@@ -43,6 +44,8 @@ genom_event
 getPosition(kemar_head *Head, genom_context self)
 {
     uint32_t sec, nsec;
+    struct timeval tv;
+
     if(h->homePos == true)
     {
         gettimeofday(&tv, NULL);
